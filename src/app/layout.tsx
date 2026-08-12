@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "MN Data Tools — CSV & Excel Toolkit",
@@ -17,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body>{children}</body>
+    <html lang="id" className={jakarta.className}>
+      <body className={jakarta.className}>{children}</body>
     </html>
   );
 }
