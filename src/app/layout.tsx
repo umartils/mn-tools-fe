@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={jakarta.className}>
-      <body className={jakarta.className}>{children}</body>
+    <html lang="id">
+      <body>{children}</body>
     </html>
   );
 }

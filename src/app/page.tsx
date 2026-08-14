@@ -9,15 +9,15 @@ export default function Home() {
 
       <main className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-10 animate-slide-up">
-          <h1 className="font-display text-5xl font-800 text-ink leading-tight mb-3">
-            Tools data Masjid Nusantara,
+          <h1 className="font-display text-5xl font-bold text-ink leading-tight mb-3">
+            WELCOME 
             <br />
-            <span className="text-accent">satu tempat.</span>
+            <span className="text-accent text-bold">MN DATA TOOLS</span>
           </h1>
-          <p className="font-body text-muted text-lg max-w-md">
+          {/* <p className="font-body text-muted text-lg max-w-md">
             Pilih tool yang kamu butuhkan — semua jalan langsung di file CSV
             atau Excel kamu, tanpa perlu pindah-pindah aplikasi.
-          </p>
+          </p> */}
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 animate-fade-in">
