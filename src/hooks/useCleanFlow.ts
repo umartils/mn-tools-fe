@@ -3,6 +3,15 @@
 import { useState, useRef, useCallback } from "react";
 import { analyzeFile, cleanFile, AnalyzeResult, CleanResult } from "@/lib/api";
 
+export interface FilterDraft {
+  id: string;
+  column: string;
+  values: string[];
+}
+
+let filterIdCounter = 0;
+const nextFilterId = () => `filter_${++filterIdCounter}`;
+
 export type Step = "upload" | "configure" | "result";
 
 export function useCleanFlow() {
@@ -29,17 +38,16 @@ export function useCleanFlow() {
   const [dedupTimeColumn, setDedupTimeColumn] = useState<string>("");
   const [dedupSubset, setDedupSubset] = useState<string[]>([]);
   const [removeNulls, setRemoveNulls] = useState(true);
-  const [filterColumn, setFilterColumn] = useState<string>("");
-  const [filterValues, setFilterValues] = useState<string[]>([]);
+  const [filters, setFilters] = useState<FilterDraft[]>([]);
   const [outputFormat, setOutputFormat] = useState<"csv" | "xlsx">("xlsx");
 
   // ── Derived ──────────────────────────────────────────────────────────────────
-  const selectedColumn = analyzeResult?.columns.find((c) => c.name === filterColumn);
   const removedRows = cleanResult ? cleanResult.originalRows - cleanResult.finalRows : 0;
   const removalPercent = cleanResult
     ? Math.round((removedRows / cleanResult.originalRows) * 100)
     : 0;
-  const canClean = normalizeColNames || removeDuplicates || removeNulls || !!filterColumn;
+  const hasActiveFilter = filters.some((f) => f.column && f.values.length > 0);
+  const canClean = normalizeColNames || removeDuplicates || removeNulls || hasActiveFilter;
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleFile = useCallback(async (f: File) => {
@@ -84,8 +92,7 @@ export function useCleanFlow() {
         dedupTimeColumn: dedupTimeColumn || null,
         dedupSubset,
         removeNulls,
-        filterColumn: filterColumn || null,
-        filterValues,
+        filters: filters.map(({ column, values }) => ({ column, values })),
         outputFormat,
       });
       setCleanResult(result);
@@ -113,8 +120,7 @@ export function useCleanFlow() {
     setAnalyzeResult(null);
     setCleanResult(null);
     setError(null);
-    setFilterColumn("");
-    setFilterValues([]);
+    setFilters([]);
     setNormalizeColNames(false);
     setRemoveDuplicates(true);
     setDedupTimeColumn("");
@@ -123,9 +129,29 @@ export function useCleanFlow() {
     setOutputFormat("csv");
   };
 
-  const toggleFilterValue = (val: string) => {
-    setFilterValues((prev) =>
-      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
+  const addFilter = () => {
+    setFilters((prev) => [...prev, { id: nextFilterId(), column: "", values: [] }]);
+  };
+
+  const removeFilter = (id: string) => {
+    setFilters((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const setFilterColumn = (id: string, column: string) => {
+    setFilters((prev) => prev.map((f) => (f.id === id ? { ...f, column, values: [] } : f)));
+  };
+
+  const setFilterValues = (id: string, values: string[]) => {
+    setFilters((prev) => prev.map((f) => (f.id === id ? { ...f, values } : f)));
+  };
+
+  const toggleFilterValue = (id: string, val: string) => {
+    setFilters((prev) =>
+      prev.map((f) =>
+        f.id === id
+          ? { ...f, values: f.values.includes(val) ? f.values.filter((v) => v !== val) : [...f.values, val] }
+          : f
+      )
     );
   };
 
@@ -139,7 +165,6 @@ export function useCleanFlow() {
     error,
     analyzeResult,
     cleanResult,
-    selectedColumn,
     removedRows,
     removalPercent,
     canClean,
@@ -158,10 +183,12 @@ export function useCleanFlow() {
     setDedupSubset,
     removeNulls,
     setRemoveNulls,
-    filterColumn,
+    filters,
+    addFilter,
+    removeFilter,
     setFilterColumn,
-    filterValues,
     setFilterValues,
+    toggleFilterValue,
     outputFormat,
     setOutputFormat,
 
@@ -171,7 +198,6 @@ export function useCleanFlow() {
     handleClean,
     handleDownload,
     handleReset,
-    toggleFilterValue,
     setIsDragging,
   };
 }

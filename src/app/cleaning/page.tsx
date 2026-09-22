@@ -46,11 +46,12 @@ export default function CleaningPage() {
             setDedupSubset={flow.setDedupSubset}
             removeNulls={flow.removeNulls}
             setRemoveNulls={flow.setRemoveNulls}
-            filterColumn={flow.filterColumn}
+            filters={flow.filters}
+            addFilter={flow.addFilter}
+            removeFilter={flow.removeFilter}
             setFilterColumn={flow.setFilterColumn}
-            filterValues={flow.filterValues}
-            toggleFilterValue={flow.toggleFilterValue}
             setFilterValues={flow.setFilterValues}
+            toggleFilterValue={flow.toggleFilterValue}
             outputFormat={flow.outputFormat}
             setOutputFormat={flow.setOutputFormat}
             onClean={flow.handleClean}

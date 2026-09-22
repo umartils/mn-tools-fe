@@ -7,8 +7,11 @@ import {
   Clock,
   ChevronDown,
   CaseSensitive,
+  Plus,
+  Filter as FilterIcon,
 } from "lucide-react";
 import { AnalyzeResult } from "@/lib/api";
+import { FilterDraft } from "@/hooks/useCleanFlow";
 
 interface ConfigureStepProps {
   file: File | null;
@@ -16,8 +19,6 @@ interface ConfigureStepProps {
   isCleaning: boolean;
   error: string | null;
   canClean: boolean;
-
-  // Clean options
   normalizeColNames: boolean;
   setNormalizeColNames: (v: boolean) => void;
   removeDuplicates: boolean;
@@ -28,15 +29,14 @@ interface ConfigureStepProps {
   setDedupSubset: (fn: (prev: string[]) => string[]) => void;
   removeNulls: boolean;
   setRemoveNulls: (v: boolean) => void;
-  filterColumn: string;
-  setFilterColumn: (v: string) => void;
-  filterValues: string[];
-  toggleFilterValue: (val: string) => void;
-  setFilterValues: (v: string[]) => void;
+  filters: FilterDraft[];
+  addFilter: () => void;
+  removeFilter: (id: string) => void;
+  setFilterColumn: (id: string, column: string) => void;
+  setFilterValues: (id: string, values: string[]) => void;
+  toggleFilterValue: (id: string, val: string) => void;
   outputFormat: "csv" | "xlsx";
   setOutputFormat: (v: "csv" | "xlsx") => void;
-
-  // Handlers
   onClean: () => void;
   onReset: () => void;
 }
@@ -57,18 +57,17 @@ export function ConfigureStep({
   setDedupSubset,
   removeNulls,
   setRemoveNulls,
-  filterColumn,
+  filters,
+  addFilter,
+  removeFilter,
   setFilterColumn,
-  filterValues,
-  toggleFilterValue,
   setFilterValues,
+  toggleFilterValue,
   outputFormat,
   setOutputFormat,
   onClean,
   onReset,
 }: ConfigureStepProps) {
-  const selectedColumn = analyzeResult.columns.find((c) => c.name === filterColumn);
-
   return (
     <div className="animate-slide-up">
       {/* ── Header ── */}
@@ -175,79 +174,43 @@ export function ConfigureStep({
           </div>
         </div>
 
-        {/* ── Right: Filter ── */}
+                {/* ── Right: Filter ── */}
         <div className="space-y-4">
-          <h3 className="font-display font-600 text-ink text-sm uppercase tracking-wider">
-            Filter Kategori
-          </h3>
-
-          <div className="p-4 bg-cream border border-border rounded-xl">
-            <p className="font-body text-muted text-xs mb-2">Pilih kolom untuk difilter</p>
-            <select
-              className="w-full bg-paper border border-border rounded-lg px-3 py-2 text-sm font-mono text-ink focus:outline-none focus:border-ink"
-              value={filterColumn}
-              onChange={(e) => {
-                setFilterColumn(e.target.value);
-                setFilterValues([]);
-              }}
+          <div className="flex items-center justify-between">
+            <h3 className="font-display font-600 text-ink text-sm uppercase tracking-wider">
+              Filter Kategori
+            </h3>
+            <button
+              onClick={addFilter}
+              className="flex items-center gap-1 text-xs text-accent hover:underline font-body"
             >
-              <option value="">— Tidak ada filter —</option>
-              {analyzeResult.columns
-                .filter((c) => c.unique_values && c.unique_values.length > 0)
-                .map((col) => (
-                  <option key={col.name} value={col.name}>
-                    {col.name} ({col.unique_count} nilai unik)
-                  </option>
-                ))}
-            </select>
+              <Plus className="w-3.5 h-3.5" />
+              Tambah Filter
+            </button>
           </div>
 
-          {filterColumn && selectedColumn?.unique_values && (
-            <div className="p-4 bg-cream border border-border rounded-xl animate-fade-in">
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-body text-muted text-xs">
-                  Pilih nilai yang <span className="font-medium text-ink">disimpan</span>
-                </p>
-                <button
-                  onClick={() =>
-                    setFilterValues(
-                      filterValues.length === selectedColumn.unique_values!.length
-                        ? []
-                        : [...selectedColumn.unique_values!]
-                    )
-                  }
-                  className="text-xs text-accent hover:underline font-body"
-                >
-                  {filterValues.length === selectedColumn.unique_values.length
-                    ? "Kosongkan semua"
-                    : "Pilih semua"}
-                </button>
-              </div>
-              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
-                {selectedColumn.unique_values.map((val) => (
-                  <label
-                    key={val}
-                    className="flex items-center gap-2.5 py-1.5 px-2 rounded-lg hover:bg-paper cursor-pointer transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      className="custom-checkbox"
-                      checked={filterValues.includes(val)}
-                      onChange={() => toggleFilterValue(val)}
-                    />
-                    <span className="font-mono text-xs text-ink truncate">
-                      {val || "(kosong)"}
-                    </span>
-                  </label>
-                ))}
-              </div>
-              {filterValues.length > 0 && (
-                <p className="mt-2 text-xs text-accent font-body">
-                  {filterValues.length} nilai dipilih
-                </p>
-              )}
+          {filters.length === 0 && (
+            <div className="p-4 bg-cream border border-dashed border-border rounded-xl text-center">
+              <FilterIcon className="w-4 h-4 text-muted mx-auto mb-2" />
+              <p className="font-body text-muted text-xs">
+                Belum ada filter — data tidak akan difilter kategori apapun.
+                <br />
+                Klik &quot;Tambah Filter&quot; kalau perlu.
+              </p>
             </div>
           )}
+
+          {filters.map((f) => (
+            <FilterRow
+              key={f.id}
+              filter={f}
+              columns={analyzeResult.columns}
+              onColumnChange={(col) => setFilterColumn(f.id, col)}
+              onValuesChange={(vals) => setFilterValues(f.id, vals)}
+              onToggleValue={(val) => toggleFilterValue(f.id, val)}
+              onRemove={() => removeFilter(f.id)}
+            />
+          ))}
         </div>
       </div>
 
@@ -311,6 +274,103 @@ export function ConfigureStep({
           )}
         </button>
       </div>
+    </div>
+  );
+}
+
+interface ColumnLike {
+  name: string;
+  unique_count: number;
+  unique_values?: string[];
+}
+
+interface FilterRowProps {
+  filter: FilterDraft;
+  columns: ColumnLike[];
+  onColumnChange: (column: string) => void;
+  onValuesChange: (values: string[]) => void;
+  onToggleValue: (value: string) => void;
+  onRemove: () => void;
+}
+
+function FilterRow({
+  filter,
+  columns,
+  onColumnChange,
+  onValuesChange,
+  onToggleValue,
+  onRemove,
+}: FilterRowProps) {
+  const selectedColumn = columns.find((c) => c.name === filter.column);
+
+  return (
+    <div className="p-4 bg-cream border border-border rounded-xl animate-fade-in relative">
+      <button
+        onClick={onRemove}
+        className="absolute top-3 right-3 text-muted hover:text-ink transition-colors"
+        title="Hapus filter ini"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+
+      <p className="font-body text-muted text-xs mb-2 pr-6">Pilih kolom untuk difilter</p>
+      <select
+        className="w-full bg-paper border border-border rounded-lg px-3 py-2 text-sm font-mono text-ink focus:outline-none focus:border-ink"
+        value={filter.column}
+        onChange={(e) => onColumnChange(e.target.value)}
+      >
+        <option value="">— Pilih kolom —</option>
+        {columns
+          .filter((c) => c.unique_values && c.unique_values.length > 0)
+          .map((col) => (
+            <option key={col.name} value={col.name}>
+              {col.name} ({col.unique_count} nilai unik)
+            </option>
+          ))}
+      </select>
+
+      {filter.column && selectedColumn?.unique_values && (
+        <div className="mt-3 pt-3 border-t border-border animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-body text-muted text-xs">
+              Pilih nilai yang <span className="font-medium text-ink">disimpan</span>
+            </p>
+            <button
+              onClick={() =>
+                onValuesChange(
+                  filter.values.length === selectedColumn.unique_values!.length
+                    ? []
+                    : [...selectedColumn.unique_values!]
+                )
+              }
+              className="text-xs text-accent hover:underline font-body"
+            >
+              {filter.values.length === selectedColumn.unique_values.length
+                ? "Kosongkan semua"
+                : "Pilih semua"}
+            </button>
+          </div>
+          <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+            {selectedColumn.unique_values.map((val) => (
+              <label
+                key={val}
+                className="flex items-center gap-2.5 py-1.5 px-2 rounded-lg hover:bg-paper cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  className="custom-checkbox"
+                  checked={filter.values.includes(val)}
+                  onChange={() => onToggleValue(val)}
+                />
+                <span className="font-mono text-xs text-ink truncate">{val || "(kosong)"}</span>
+              </label>
+            ))}
+          </div>
+          {filter.values.length > 0 && (
+            <p className="mt-2 text-xs text-accent font-body">{filter.values.length} nilai dipilih</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

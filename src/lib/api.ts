@@ -26,6 +26,11 @@ export interface DatetimeColumnInfo {
   resolution: "second" | "minute" | "date";
 }
 
+export interface FilterRule {
+  column: string;
+  values: string[];
+}
+
 export interface CleanOptions {
   file: File;
   normalizeColNames: boolean;
@@ -33,8 +38,7 @@ export interface CleanOptions {
   dedupTimeColumn: string | null;
   dedupSubset: string[];
   removeNulls: boolean;
-  filterColumn: string | null;
-  filterValues: string[];
+  filters: FilterRule[];
   outputFormat: "csv" | "xlsx";
 }
 
@@ -71,9 +75,12 @@ export async function cleanFile(opts: CleanOptions): Promise<CleanResult> {
   form.append("dedup_time_column", opts.dedupTimeColumn || "");
   form.append("dedup_subset", JSON.stringify(opts.dedupSubset));
   form.append("remove_nulls", String(opts.removeNulls));
-  form.append("filter_column", opts.filterColumn || "");
-  form.append("filter_values", JSON.stringify(opts.filterValues));
+  const validFilters = opts.filters.filter((f) => f.column && f.values.length > 0);
+  form.append("filters", JSON.stringify(validFilters));
   form.append("output_format", opts.outputFormat);
+  // form.append("filter_column", opts.filterColumn || "");
+  // form.append("filter_values", JSON.stringify(opts.filterValues));
+  // form.append("output_format", opts.outputFormat);
 
   const res = await fetch(`${API_BASE}/clean`, {
     method: "POST",
