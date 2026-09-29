@@ -192,14 +192,15 @@ export function useCleanFlow() {
     setStep("match");
   };
 
-  const handleMatchFile = useCallback((f: File) => {
-    if (!f.name.toLowerCase().endsWith(".csv")) {
-      setMatchError("Format tidak didukung. Gunakan file CSV mutasi bank.");
-      return;
-    }
-    setMatchError(null);
-    setMatchFile(f);
-  }, []);
+    const handleMatchFile = useCallback((f: File) => {
+      const name = f.name.toLowerCase();
+      if (!name.endsWith(".csv") && !name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+        setMatchError("Format tidak didukung. Gunakan file CSV atau Excel (.xlsx/.xls) mutasi bank.");
+        return;
+      }
+      setMatchError(null);
+      setMatchFile(f);
+    }, []);
 
   const handleMatchDrop = useCallback(
     (e: React.DragEvent) => {
