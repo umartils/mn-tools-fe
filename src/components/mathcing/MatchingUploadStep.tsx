@@ -17,6 +17,10 @@ interface MatchUploadStepProps {
   onDragLeave: () => void;
   onSubmit: () => void;
   onBack: () => void;
+  mutasiKeteranganColumn: string;
+  setMutasiKeteranganColumn: (v: string) => void;
+  mutasiJumlahColumn: string;
+  setMutasiJumlahColumn: (v: string) => void;
 }
 
 export function MatchUploadStep({
@@ -36,6 +40,10 @@ export function MatchUploadStep({
   onDragLeave,
   onSubmit,
   onBack,
+  mutasiKeteranganColumn,
+  setMutasiKeteranganColumn,
+  mutasiJumlahColumn,
+  setMutasiJumlahColumn
 }: MatchUploadStepProps) {
   return (
     <div className="animate-slide-up max-w-2xl mx-auto">
@@ -102,6 +110,39 @@ export function MatchUploadStep({
         </p>
       </div>
 
+      {/* Nama kolom di file mutasi bank */}
+      <div className="p-5 bg-cream border border-border rounded-2xl mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Columns3 className="w-4 h-4 text-muted" />
+          <span className="font-display font-600 text-sm text-ink">
+            Nama kolom di file mutasi bank
+          </span>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label className="font-body text-xs text-muted mb-1 block">Kolom Keterangan</label>
+            <input
+              type="text"
+              value={mutasiKeteranganColumn}
+              onChange={(e) => setMutasiKeteranganColumn(e.target.value)}
+              className="w-full px-3 py-2 bg-paper border border-border rounded-lg font-mono text-sm text-ink focus:outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="font-body text-xs text-muted mb-1 block">Kolom Jumlah</label>
+            <input
+              type="text"
+              value={mutasiJumlahColumn}
+              onChange={(e) => setMutasiJumlahColumn(e.target.value)}
+              className="w-full px-3 py-2 bg-paper border border-border rounded-lg font-mono text-sm text-ink focus:outline-none focus:border-accent"
+            />
+          </div>
+        </div>
+        <p className="font-body text-xs text-muted mt-3">
+          Sesuaikan kalau nama kolom di file mutasi bank kamu beda dari default ini.
+        </p>
+      </div>
+
       {/* Drop zone */}
       <div
         className={`relative border-2 border-dashed rounded-2xl transition-all duration-200 cursor-pointer ${
@@ -118,7 +159,7 @@ export function MatchUploadStep({
         <input
           id="mutasi-file-input"
           type="file"
-          accept=".csv"
+          accept=".csv,.xlsx,.xls"
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
@@ -141,7 +182,7 @@ export function MatchUploadStep({
                 </span>
               </p>
             )}
-            <p className="font-mono text-xs text-border mt-3">CSV — kolom Keterangan &amp; Jumlah</p>
+            <p className="font-mono text-xs text-border mt-3">CSV / XLS / XLSX — kolom Keterangan &amp; Jumlah</p>
           </div>
         </div>
       </div>
@@ -156,7 +197,9 @@ export function MatchUploadStep({
       <button
         onClick={onSubmit}
         disabled={!canMatch}
-        className="mt-6 w-full sm:w-auto px-6 py-3 bg-ink text-paper font-display font-600 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-ink/90 transition-colors"
+        className="mt-6 w-full sm:w-auto px-6 py-3 bg-ink text-paper 
+          font-display font-600 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed 
+          flex items-center justify-center gap-2 hover:bg-ink/90 transition-colors"
       >
         {isMatching ? (
           <>

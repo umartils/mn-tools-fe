@@ -55,6 +55,8 @@ export function useCleanFlow() {
   const [isMatching, setIsMatching] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
+  const [mutasiKeteranganColumn, setMutasiKeteranganColumn] = useState("Keterangan");
+  const [mutasiJumlahColumn, setMutasiJumlahColumn] = useState("Jumlah");
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const removedRows = cleanResult ? cleanResult.originalRows - cleanResult.finalRows : 0;
@@ -146,6 +148,8 @@ export function useCleanFlow() {
     setMatchFile(null);
     setNominalColumn("");
     setNamaColumn("");
+    setMutasiKeteranganColumn("Keterangan");
+    setMutasiJumlahColumn("Jumlah");
     setMatchError(null);
     setMatchResult(null);
   };
@@ -207,7 +211,13 @@ export function useCleanFlow() {
     [handleMatchFile]
   );
 
-  const canMatch = !!matchFile && !!nominalColumn && !!namaColumn && !isMatching;
+  const canMatch =
+    !!matchFile &&
+    !!nominalColumn &&
+    !!namaColumn &&
+    !!mutasiKeteranganColumn &&
+    !!mutasiJumlahColumn &&
+    !isMatching;
 
   const handleMatchSubmit = async () => {
     if (!cleanResult || !matchFile) return;
@@ -220,6 +230,8 @@ export function useCleanFlow() {
         fileMutasi: matchFile,
         nominalColumn,
         namaColumn,
+        mutasiKeteranganColumn,
+        mutasiJumlahColumn,
       });
       setMatchResult(result);
       setStep("matchResult");
@@ -288,6 +300,11 @@ export function useCleanFlow() {
     setNominalColumn,
     namaColumn,
     setNamaColumn,
+    mutasiKeteranganColumn,
+    setMutasiKeteranganColumn,
+    mutasiJumlahColumn,
+    setMutasiJumlahColumn,
+
     isMatching,
     matchError,
     matchResult,

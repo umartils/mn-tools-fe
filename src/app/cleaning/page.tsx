@@ -90,6 +90,10 @@ export default function CleaningPage() {
             onDragLeave={() => flow.setIsDragging(false)}
             onSubmit={flow.handleMatchSubmit}
             onBack={flow.backToResult}
+            mutasiKeteranganColumn={flow.mutasiKeteranganColumn}
+            setMutasiKeteranganColumn={flow.setMutasiKeteranganColumn}
+            mutasiJumlahColumn={flow.mutasiJumlahColumn}
+            setMutasiJumlahColumn={flow.setMutasiJumlahColumn}
           />
         )}
 
