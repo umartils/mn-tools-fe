@@ -48,6 +48,7 @@ export interface CleanResult {
   originalRows: number;
   finalRows: number;
   stepsLog: string[];
+  resultColumns: string[];
 }
 
 export async function analyzeFile(file: File): Promise<AnalyzeResult> {
@@ -97,10 +98,12 @@ export async function cleanFile(opts: CleanOptions): Promise<CleanResult> {
   const finalRows = parseInt(res.headers.get("X-Final-Rows") || "0");
   const stepsLogRaw = res.headers.get("X-Steps-Log") || "[]";
   const stepsLog: string[] = JSON.parse(stepsLogRaw);
+  const resultColumnsRaw = res.headers.get("X-Result-Columns") || "[]";
+  const resultColumns: string[] = JSON.parse(resultColumnsRaw);
 
   const disposition = res.headers.get("Content-Disposition") || "";
   const match = disposition.match(/filename="(.+?)"/);
   const filename = match ? match[1] : `cleaned_data.${opts.outputFormat}`;
 
-  return { blob, filename, originalRows, finalRows, stepsLog };
+  return { blob, filename, originalRows, finalRows, stepsLog, resultColumns };
 }

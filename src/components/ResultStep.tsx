@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, FileSpreadsheet } from "lucide-react";
+import { CheckCircle2, Download, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
 import { CleanResult } from "@/lib/api";
 
 interface ResultStepProps {
@@ -6,6 +6,7 @@ interface ResultStepProps {
   removedRows: number;
   removalPercent: number;
   onDownload: () => void;
+  onGoToMatch: () => void;
   onReset: () => void;
 }
 
@@ -14,6 +15,7 @@ export function ResultStep({
   removedRows,
   removalPercent,
   onDownload,
+  onGoToMatch,
   onReset,
 }: ResultStepProps) {
   return (
@@ -60,13 +62,20 @@ export function ResultStep({
       )}
 
       {/* Actions */}
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-3 justify-center flex-wrap">
         <button
           onClick={onDownload}
           className="flex items-center gap-2.5 px-8 py-3.5 bg-ink text-paper rounded-xl font-display font-600 text-sm hover:bg-accent transition-all"
         >
           <Download className="w-4 h-4" />
           Unduh {cleanResult.filename}
+        </button>
+        <button
+          onClick={onGoToMatch}
+          className="flex items-center gap-2.5 px-6 py-3.5 bg-cream border border-border rounded-xl font-display font-600 text-sm text-ink hover:border-ink transition-all"
+        >
+          <ArrowRightLeft className="w-4 h-4" />
+          Lanjut ke Pencocokan Mutasi
         </button>
         <button
           onClick={onReset}

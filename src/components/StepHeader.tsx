@@ -11,14 +11,16 @@ const STEPS: { label: string; id: Step }[] = [
   { label: "Hasil", id: "result" },
 ];
 
+const STEP_ORDER: Step[] = ["upload", "configure", "result", "match", "matchResult"];
+
 export function StepHeader({ step }: StepHeaderProps) {
+  const currentIndex = STEP_ORDER.indexOf(step);
+
   return (
     <div className="flex items-center gap-2 text-sm text-muted font-body">
       {STEPS.map(({ label, id }, i) => {
         const active = step === id;
-        const done =
-          (step === "configure" && i === 0) ||
-          (step === "result" && i < 2);
+        const done = currentIndex > i;
 
         return (
           <div key={id} className="flex items-center gap-2">

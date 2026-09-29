@@ -6,6 +6,8 @@ import { UploadStep } from "@/components/UploadStep";
 import { ConfigureStep } from "@/components/ConfigureStep";
 import { ResultStep } from "@/components/ResultStep";
 import { AppHeader } from "@/components/AppHeader";
+import { MatchUploadStep } from "@/components/mathcing/MatchingUploadStep";
+import { MatchResultStep } from "@/components/mathcing/MatchingResultStep";
 
 export default function CleaningPage() {
   const flow = useCleanFlow();
@@ -65,6 +67,36 @@ export default function CleaningPage() {
             removedRows={flow.removedRows}
             removalPercent={flow.removalPercent}
             onDownload={flow.handleDownload}
+            onGoToMatch={flow.goToMatch}
+            onReset={flow.handleReset}
+          />
+        )}
+
+        {flow.step === "match" && flow.cleanResult && (
+          <MatchUploadStep
+            resultColumns={flow.cleanResult.resultColumns}
+            matchFile={flow.matchFile}
+            isDragging={flow.isDragging}
+            isMatching={flow.isMatching}
+            error={flow.matchError}
+            canMatch={flow.canMatch}
+            nominalColumn={flow.nominalColumn}
+            setNominalColumn={flow.setNominalColumn}
+            namaColumn={flow.namaColumn}
+            setNamaColumn={flow.setNamaColumn}
+            onFile={flow.handleMatchFile}
+            onDrop={flow.handleMatchDrop}
+            onDragOver={() => flow.setIsDragging(true)}
+            onDragLeave={() => flow.setIsDragging(false)}
+            onSubmit={flow.handleMatchSubmit}
+            onBack={flow.backToResult}
+          />
+        )}
+
+        {flow.step === "matchResult" && flow.matchResult && (
+          <MatchResultStep
+            matchResult={flow.matchResult}
+            onDownload={flow.handleMatchDownload}
             onReset={flow.handleReset}
           />
         )}
