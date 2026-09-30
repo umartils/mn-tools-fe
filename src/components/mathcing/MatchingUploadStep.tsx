@@ -5,6 +5,7 @@ interface MatchUploadStepProps {
   matchFile: File | null;
   isDragging: boolean;
   isMatching: boolean;
+  isConvertingMatchFile: boolean;
   error: string | null;
   canMatch: boolean;
   nominalColumn: string;
@@ -21,6 +22,10 @@ interface MatchUploadStepProps {
   setMutasiKeteranganColumn: (v: string) => void;
   mutasiJumlahColumn: string;
   setMutasiJumlahColumn: (v: string) => void;
+  mutasiCsvDelimiter: string;
+  setMutasiCsvDelimiter: (v: string) => void;
+  mutasiCsvHeaderRow: number;
+  setMutasiCsvHeaderRow: (v: number) => void;
 }
 
 export function MatchUploadStep({
@@ -28,6 +33,7 @@ export function MatchUploadStep({
   matchFile,
   isDragging,
   isMatching,
+  isConvertingMatchFile,
   error,
   canMatch,
   nominalColumn,
@@ -43,7 +49,11 @@ export function MatchUploadStep({
   mutasiKeteranganColumn,
   setMutasiKeteranganColumn,
   mutasiJumlahColumn,
-  setMutasiJumlahColumn
+  setMutasiJumlahColumn,
+  mutasiCsvDelimiter,
+  setMutasiCsvDelimiter,
+  mutasiCsvHeaderRow,
+  setMutasiCsvHeaderRow,
 }: MatchUploadStepProps) {
   return (
     <div className="animate-slide-up max-w-2xl mx-auto">
@@ -138,6 +148,29 @@ export function MatchUploadStep({
             />
           </div>
         </div>
+                <div className="grid sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-border">
+          <div>
+            <label className="font-body text-xs text-muted mb-1 block">Delimiter CSV</label>
+            <input
+              type="text"
+              value={mutasiCsvDelimiter}
+              onChange={(e) => setMutasiCsvDelimiter(e.target.value)}
+              className="w-full px-3 py-2 bg-paper border border-border rounded-lg font-mono text-sm text-ink focus:outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="font-body text-xs text-muted mb-1 block">
+              Baris header (0 = baris pertama)
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={mutasiCsvHeaderRow}
+              onChange={(e) => setMutasiCsvHeaderRow(Number(e.target.value))}
+              className="w-full px-3 py-2 bg-paper border border-border rounded-lg font-mono text-sm text-ink focus:outline-none focus:border-accent"
+            />
+          </div>
+        </div>
         <p className="font-body text-xs text-muted mt-3">
           Sesuaikan kalau nama kolom di file mutasi bank kamu beda dari default ini.
         </p>
@@ -172,7 +205,15 @@ export function MatchUploadStep({
           </div>
           <div className="text-center">
             <p className="font-display font-600 text-lg text-ink mb-1">
-              {matchFile ? matchFile.name : isDragging ? "Lepaskan file di sini" : "Drag & drop mutasi bank"}
+              <p className="font-display font-600 text-lg text-ink mb-1">
+                {isConvertingMatchFile
+                  ? "Mengonversi file Excel..."
+                  : matchFile
+                  ? matchFile.name
+                  : isDragging
+                  ? "Lepaskan file di sini"
+                  : "Drag & drop mutasi bank"}
+              </p>
             </p>
             {!matchFile && (
               <p className="font-body text-muted text-sm">

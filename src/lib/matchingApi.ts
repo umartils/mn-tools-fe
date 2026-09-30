@@ -7,6 +7,8 @@ export interface MatchOptions {
   namaColumn: string;
   mutasiKeteranganColumn?: string;
   mutasiJumlahColumn?: string;
+  mutasiCsvDelimiter?: string;
+  mutasiCsvHeaderRow?: number;
 }
 
 export interface MatchResult {
@@ -22,8 +24,10 @@ export async function cocokkanMutasi(opts: MatchOptions): Promise<MatchResult> {
   form.append("file_mutasi", opts.fileMutasi);
   form.append("nominal_column", opts.nominalColumn);
   form.append("nama_column", opts.namaColumn);
-  form.append("mutasi_keterangan_column", opts.mutasiKeteranganColumn || "Keterangan");
-  form.append("mutasi_jumlah_column", opts.mutasiJumlahColumn || "Jumlah");
+  form.append("mutasi_keterangan_column", opts.mutasiKeteranganColumn || "Description");
+  form.append("mutasi_jumlah_column", opts.mutasiJumlahColumn || "Credit");
+  form.append("mutasi_csv_delimiter", opts.mutasiCsvDelimiter || ",");
+  form.append("mutasi_csv_header_row", String(opts.mutasiCsvHeaderRow ?? 0));
 
   const res = await fetch(`${API_BASE}/matching/cocokkan-mutasi`, {
     method: "POST",

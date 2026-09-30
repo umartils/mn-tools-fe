@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { analyzeFile, cleanFile, AnalyzeResult, CleanResult } from "@/lib/api";
 import { cocokkanMutasi, MatchResult } from "@/lib/matchingApi";
+import { convertExcelToCsv, isExcelFile } from "@/lib/xlsToCsv";
 
 export type Step = "upload" | "configure" | "result" | "match" | "matchResult";
 
@@ -50,13 +51,16 @@ export function useCleanFlow() {
 
     // ── Matching mutasi bank ────────────────────────────────────────────────────
   const [matchFile, setMatchFile] = useState<File | null>(null);
+  const [isConvertingMatchFile, setIsConvertingMatchFile] = useState(false);
   const [nominalColumn, setNominalColumn] = useState("");
   const [namaColumn, setNamaColumn] = useState("");
   const [isMatching, setIsMatching] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
-  const [mutasiKeteranganColumn, setMutasiKeteranganColumn] = useState("Keterangan");
-  const [mutasiJumlahColumn, setMutasiJumlahColumn] = useState("Jumlah");
+  const [mutasiKeteranganColumn, setMutasiKeteranganColumn] = useState("Description");
+  const [mutasiJumlahColumn, setMutasiJumlahColumn] = useState("Credit");
+  const [mutasiCsvDelimiter, setMutasiCsvDelimiter] = useState(",");
+  const [mutasiCsvHeaderRow, setMutasiCsvHeaderRow] = useState(0);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const removedRows = cleanResult ? cleanResult.originalRows - cleanResult.finalRows : 0;
@@ -148,10 +152,12 @@ export function useCleanFlow() {
     setMatchFile(null);
     setNominalColumn("");
     setNamaColumn("");
-    setMutasiKeteranganColumn("Keterangan");
-    setMutasiJumlahColumn("Jumlah");
+    setMutasiKeteranganColumn("Description");
+    setMutasiJumlahColumn("Credit");
     setMatchError(null);
     setMatchResult(null);
+    setMutasiCsvDelimiter(",");
+    setMutasiCsvHeaderRow(0);
   };
 
   const addFilter = () => {
@@ -192,15 +198,28 @@ export function useCleanFlow() {
     setStep("match");
   };
 
-    const handleMatchFile = useCallback((f: File) => {
-      const name = f.name.toLowerCase();
-      if (!name.endsWith(".csv") && !name.endsWith(".xlsx") && !name.endsWith(".xls")) {
-        setMatchError("Format tidak didukung. Gunakan file CSV atau Excel (.xlsx/.xls) mutasi bank.");
-        return;
+  const handleMatchFile = useCallback(async (f: File) => {
+    const name = f.name.toLowerCase();
+    if (!name.endsWith(".csv") && !name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+      setMatchError("Format tidak didukung. Gunakan file CSV atau Excel (.xlsx/.xls) mutasi bank.");
+      return;
+    }
+    setMatchError(null);
+
+    if (isExcelFile(f)) {
+      setIsConvertingMatchFile(true);
+      try {
+        const csvFile = await convertExcelToCsv(f);
+        setMatchFile(csvFile);
+      } catch {
+        setMatchError("Gagal membaca file Excel. Pastikan file tidak korup atau coba simpan ulang sebagai .xlsx.");
+      } finally {
+        setIsConvertingMatchFile(false);
       }
-      setMatchError(null);
+    } else {
       setMatchFile(f);
-    }, []);
+    }
+  }, []);
 
   const handleMatchDrop = useCallback(
     (e: React.DragEvent) => {
@@ -218,7 +237,8 @@ export function useCleanFlow() {
     !!namaColumn &&
     !!mutasiKeteranganColumn &&
     !!mutasiJumlahColumn &&
-    !isMatching;
+    !isMatching &&
+    !isConvertingMatchFile;
 
   const handleMatchSubmit = async () => {
     if (!cleanResult || !matchFile) return;
@@ -233,6 +253,8 @@ export function useCleanFlow() {
         namaColumn,
         mutasiKeteranganColumn,
         mutasiJumlahColumn,
+        mutasiCsvDelimiter,
+        mutasiCsvHeaderRow,
       });
       setMatchResult(result);
       setStep("matchResult");
@@ -297,6 +319,7 @@ export function useCleanFlow() {
     outputFormat,
     setOutputFormat,
     matchFile,
+    isConvertingMatchFile,
     nominalColumn,
     setNominalColumn,
     namaColumn,
@@ -305,6 +328,10 @@ export function useCleanFlow() {
     setMutasiKeteranganColumn,
     mutasiJumlahColumn,
     setMutasiJumlahColumn,
+    mutasiCsvDelimiter,
+    setMutasiCsvDelimiter,
+    mutasiCsvHeaderRow,
+    setMutasiCsvHeaderRow,
 
     isMatching,
     matchError,
