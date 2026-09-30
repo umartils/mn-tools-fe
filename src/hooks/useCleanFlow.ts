@@ -11,7 +11,7 @@ export interface FilterDraft {
   id: string;
   column: string;
   values: string[];
-}
+} 
 
 let filterIdCounter = 0;
 const nextFilterId = () => `filter_${++filterIdCounter}`;
