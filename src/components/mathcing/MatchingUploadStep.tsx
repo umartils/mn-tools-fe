@@ -148,7 +148,7 @@ export function MatchUploadStep({
             />
           </div>
         </div>
-                <div className="grid sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-border">
+          <div className="grid sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-border">
           <div>
             <label className="font-body text-xs text-muted mb-1 block">Delimiter CSV</label>
             <input

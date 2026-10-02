@@ -11,11 +11,16 @@ export async function convertExcelToCsv(file: File): Promise<File> {
   const workbook = XLSX.read(buffer, { type: "array" });
   const firstSheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[firstSheetName];
-  const csv = XLSX.utils.sheet_to_csv(worksheet);
+  
+  const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ";", });
+  const csvBlob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  });
 
-  const csvBlob = new Blob([csv], { type: "text/csv" });
   const csvFilename = file.name.replace(/\.(xlsx|xls)$/i, ".csv");
-  return new File([csvBlob], csvFilename, { type: "text/csv" });
+  return new File([csvBlob], csvFilename, {
+    type: "text/csv;charset=utf-8;",
+  });
 }
 
 export function isExcelFile(file: File): boolean {

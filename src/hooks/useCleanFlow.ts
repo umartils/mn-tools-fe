@@ -59,7 +59,7 @@ export function useCleanFlow() {
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [mutasiKeteranganColumn, setMutasiKeteranganColumn] = useState("Description");
   const [mutasiJumlahColumn, setMutasiJumlahColumn] = useState("Credit");
-  const [mutasiCsvDelimiter, setMutasiCsvDelimiter] = useState(",");
+  const [mutasiCsvDelimiter, setMutasiCsvDelimiter] = useState(";");
   const [mutasiCsvHeaderRow, setMutasiCsvHeaderRow] = useState(0);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
@@ -156,7 +156,7 @@ export function useCleanFlow() {
     setMutasiJumlahColumn("Credit");
     setMatchError(null);
     setMatchResult(null);
-    setMutasiCsvDelimiter(",");
+    setMutasiCsvDelimiter(";");
     setMutasiCsvHeaderRow(0);
   };
 
