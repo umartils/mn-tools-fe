@@ -55,6 +55,7 @@ export function useCleanFlow() {
   const [nominalColumn, setNominalColumn] = useState("");
   const [namaColumn, setNamaColumn] = useState("");
   const [isMatching, setIsMatching] = useState(false);
+  const [isCsvFile, setIsCsvFile] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [mutasiKeteranganColumn, setMutasiKeteranganColumn] = useState("Description");
@@ -77,6 +78,11 @@ export function useCleanFlow() {
       setError("Format tidak didukung. Gunakan file CSV atau Excel (.xlsx).");
       return;
     }
+
+    if (name.endsWith(".csv")) {
+      setIsCsvFile(true);
+    }
+
     setFile(f);
     setError(null);
     setIsAnalyzing(true);
@@ -210,6 +216,7 @@ export function useCleanFlow() {
       setIsConvertingMatchFile(true);
       try {
         const csvFile = await convertExcelToCsv(f);
+        setIsCsvFile(true);
         setMatchFile(csvFile);
       } catch {
         setMatchError("Gagal membaca file Excel. Pastikan file tidak korup atau coba simpan ulang sebagai .xlsx.");
@@ -316,6 +323,7 @@ export function useCleanFlow() {
     setFilterColumn,
     setFilterValues,
     toggleFilterValue,
+    isCsvFile,
     outputFormat,
     setOutputFormat,
     matchFile,

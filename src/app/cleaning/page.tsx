@@ -74,6 +74,7 @@ export default function CleaningPage() {
 
         {flow.step === "match" && flow.cleanResult && (
           <MatchUploadStep
+            file={flow.file}
             resultColumns={flow.cleanResult.resultColumns}
             matchFile={flow.matchFile}
             isConvertingMatchFile={flow.isConvertingMatchFile}
@@ -99,6 +100,7 @@ export default function CleaningPage() {
             setMutasiCsvDelimiter={flow.setMutasiCsvDelimiter}
             mutasiCsvHeaderRow={flow.mutasiCsvHeaderRow}
             setMutasiCsvHeaderRow={flow.setMutasiCsvHeaderRow}
+            isCsvFile={flow.isCsvFile}
           />
         )}
 
